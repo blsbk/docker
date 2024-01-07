@@ -354,3 +354,117 @@ Welcome to the training program RebrainMe: Docker!
 ```
 
 8. Отправляем на проверку
+
+##  DKR 09: Images. Основные директивы Dockerfile 
+
+1. Пишем Dockerfile следующей конфигурации:
+```Dockerfile
+FROM ubuntu:18.04
+RUN apt-get update && apt-get install -y nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["-g", "daemon off;"]
+WORKDIR /etc/nginx/
+VOLUME /var/lib/nginx
+```
+
+2. Собираем образ
+
+```bash
+user@server:~$ docker build -t nginx:rbm-dkr-09 .
+```
+
+3. Выводим список образов на хосте
+```bash
+user@server:~$ docker images
+REPOSITORY   TAG          IMAGE ID       CREATED         SIZE
+nginx        rbm-dkr-09   b1f4d99482bf   9 seconds ago   169MB
+ubuntu       18.04        f9a80a55f492   7 months ago    63.2MB
+```
+
+4. Запускаем контейнер
+```bash
+user@server:~$ docker run -d -p 127.0.0.1:8901:80 nginx:rbm-dkr-09
+```
+
+5. Выводим список запущенных контейнеров - контейнер должен быть запущен.
+
+```bash
+user@server:~$ docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS                    NAMES
+f7358795d903   nginx:rbm-dkr-09   "nginx -g 'daemon of…"   9 seconds ago   Up 7 seconds   127.0.0.1:8901->80/tcp   elated_roentgen
+```
+
+6. Проверьте работу, обратившись к 127.0.0.1:8901
+
+```bash
+user@server:~$ curl 127.0.0.1:8901
+Welcome to the training program RebrainMe: Docker!
+```
+
+7. Отправляем на проверку
+
+## DKR 10: Images. Параметризация Dockerfile
+
+1. Создаем файл /home/user/Dockerfile
+```Dockerfile
+ARG NG_VERSION
+FROM nginx:$NG_VERSION
+ENV NG_VERSION=$NG_VERSION
+ARG ARG_FILE
+RUN touch /opt/$ARG_FILE
+```
+
+2. Соберираем образ из данного Dockerfile, передаю в качестве аргумента версию nginx stable и название файла newfile
+
+```bash
+user@server:~$ docker build --build-arg NG_VERSION=stable --build-arg ARG_FILE=newfile -t nginx:rbm-dkr-10 /home/user/
+```
+
+3. Выводим список образов на хосте
+```bash
+user@server:~$ docker images
+REPOSITORY   TAG          IMAGE ID       CREATED          SIZE
+nginx        rbm-dkr-10   83898cc0b615   27 seconds ago   142MB
+nginx        stable       4c2c5b8bf99f   9 months ago     142MB
+```
+
+4. Запускаем контейнер из этого образа
+```bash
+user@server:~$ docker run -d --name rbm-dkr-10 --env REBRAINME=DKR10 nginx:rbm-dkr-10
+```
+
+5. Выводим список запущенных контейнеров
+```bash
+user@server:~$ docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS     NAMES
+8681c6276240   nginx:rbm-dkr-10   "/docker-entrypoint.…"   7 seconds ago   Up 5 seconds   80/tcp    rbm-dkr-10
+```
+
+6. Выводим в контейнере список переменных окружения 
+```bash
+user@server:~$ docker exec -it rbm-dkr-10 env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=8681c6276240
+TERM=xterm
+REBRAINME=DKR10
+NGINX_VERSION=1.24.0
+NJS_VERSION=0.7.12
+PKG_RELEASE=1~bullseye
+NG_VERSION=
+HOME=/root
+```
+
+> как видим, переменная окружения NG_VERSION пуста так как ARG не доступна после FROM.
+
+7. Выводим в контейнере список файлов в директории /opt/
+```bash
+user@server:~$ docker exec -it rbm-dkr-10 ls /opt/
+newfile
+```
+
+8. Отправляем на проверку
+
+## DKR 11: Images. Введение в понятие «слои» 
+
+
