@@ -395,7 +395,7 @@ CONTAINER ID   IMAGE              COMMAND                  CREATED         STATU
 f7358795d903   nginx:rbm-dkr-09   "nginx -g 'daemon of…"   9 seconds ago   Up 7 seconds   127.0.0.1:8901->80/tcp   elated_roentgen
 ```
 
-6. Проверьте работу, обратившись к 127.0.0.1:8901
+6. Проверяем работу, обратившись к 127.0.0.1:8901
 
 ```bash
 user@server:~$ curl 127.0.0.1:8901
@@ -415,7 +415,7 @@ ARG ARG_FILE
 RUN touch /opt/$ARG_FILE
 ```
 
-2. Соберираем образ из данного Dockerfile, передаю в качестве аргумента версию nginx stable и название файла newfile
+2. Собираем образ из данного Dockerfile, передаю в качестве аргумента версию nginx stable и название файла newfile
 
 ```bash
 user@server:~$ docker build --build-arg NG_VERSION=stable --build-arg ARG_FILE=newfile -t nginx:rbm-dkr-10 /home/user/
